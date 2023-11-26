@@ -1,25 +1,114 @@
-<!DOCTYPE html>
+<!-- login.hbs -->
+
 <html lang="en">
+
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Firebase Authentication</title>
-  <!-- Add Bootstrap CSS -->
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+    <!-- Bootstrap CSS link -->
+    <link
+        href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+        rel="stylesheet"
+    />
+    <!-- Additional styles -->
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+
+        .login-container {
+            max-width: 400px;
+            margin: 100px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .btn-login {
+            background-color: #007bff;
+            color: #fff;
+        }
+    </style>
 </head>
+
 <body>
+    <!-- Navbar -->
+    <nav class="navbar navbar-expand-lg navbar-light bg-light">
+        <a class="navbar-brand" href="/">WHITEBOARD</a>
+    </nav>
 
-<div class="container mt-5">
-  <h2 class="text-center">Login</h2>
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <!-- Student Login Button -->
-      <button class="btn btn-primary btn-block mb-2" onclick="studentLogin()">Student Login</button>
+    <div class="container">
+        <div class="login-container">
+            <h2 class="text-center mb-4">Login</h2>
+            <form action="/login" method="post">
+                <div class="form-group">
+                    <label for="email">Email:</label>
+                    <input
+                        type="email"
+                        class="form-control"
+                        id="email"
+                        name="email"
+                        required
+                    />
+                </div>
 
-      <!-- Lecturer Login Button -->
-      <button class="btn btn-primary btn-block" onclick="lecturerLogin()">Lecturer Login</button>
+                <div class="form-group">
+                    <label for="password">Password:</label>
+                    <input
+                        type="password"
+                        class="form-control"
+                        id="password"
+                        name="password"
+                        required
+                    />
+                </div>
+
+                <div class="form-group">
+                    <label>User Type:</label><br />
+                    <div class="form-check form-check-inline">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            id="student"
+                            name="userType"
+                            value="student"
+                            checked
+                        />
+                        <label class="form-check-label" for="student">Student</label>
+                    </div>
+
+                    <div class="form-check form-check-inline">
+                        <input
+                            class="form-check-input"
+                            type="radio"
+                            id="lecturer"
+                            name="userType"
+                            value="lecturer"
+                        />
+                        <label class="form-check-label" for="lecturer">Lecturer</label>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn btn-login btn-block">Login</button>
+            </form>
+        </div>
     </div>
-  </div>
-</div>
+
+    <!-- Bootstrap JS and Popper.js scripts (required for Bootstrap) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script
+        src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+    ></script>
+    <script
+        src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+    ></script>
 </body>
+
 </html>

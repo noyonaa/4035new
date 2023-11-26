@@ -1,80 +1,61 @@
-import { initializeApp } from "firebase/app";
-import { getAnalytics } from "firebase/analytics";
+// import { initializeApp } from "firebase/app";
+// import { getAnalytics } from "firebase/analytics";
 const express = require("express");
-const port = 3000;
 const bodyparser = require("body-parser");
-const firebaseAdmin = require("firebase-admin");
+const session = require("express-session");
+const admin = require("firebase-admin");
 const path = require("path");
-const app = express();
 const exphbs = require("express-handlebars");
-
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: firebaseConfig.databaseURL,
-});
+const port = 3000; // Corrected variable name
+const app = express(); // Create an instance of the Express app
 
 // Use Handlebars as the view engine
 app.engine("hbs", exphbs({ extname: "hbs" }));
 app.set("view engine", "hbs");
 app.set("views", path.join(__dirname, "views"));
 
+// Configure session
+app.use(
+  session({
+    secret: "SHus#wjj3ye439723ui0AJ48w&*^@sji", // Change this to a secret key
+    resave: false,
+    saveUninitialized: true,
+  })
+);
+
+app.use(bodyparser.urlencoded({ extended: false })); // Corrected typo in "extended"
 app.use(bodyparser.json());
+
 // Serve static files (HTML, CSS, etc.)
 app.use(express.static("public"));
-app.use(bodyparser.urlencoded({ entended: false }));
+// Middleware to check if the user is authenticated
+const isAuthenticated = (req, res, next) => {
+  if (!req.session.user) {
+    // Redirect to login if the user is not authenticated
+    res.redirect("/login");
+  } else {
+    next();
+  }
+};
 
-// Initialize Firebase Admin SDK
-const serviceAccount = require("./serviceAccountKey.json");
-const firebaseConfig = require("./firebaseConfig");
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: "https://proj-2535e.firebaseio.com/",
-  // Replace with your Firebase project URL
-});
 
 const firestore = admin.firestore();
 
-// Middleware to check if the user is authenticated
-const isAuthenticated = (req, res, next) => {
-  const idToken = req.header("Authorization");
-  if (!idToken) {
-    return res.status(401).json({ error: "Unauthorized" });
-  }
+admin.firestore().settings({ host: "localhost:8080", ssl: false });
 
-  admin
-    .auth()
-    .verifyIdToken(idToken)
-    .then((decodedToken) => {
-      req.user = decodedToken;
-      next();
-    })
-    .catch(() => {
-      res.status(401).json({ error: "Unauthorized" });
-    });
-};
 
-// Serve the home page for authenticated users
-app.get("/", isAuthenticated, (req, res) => {
-  const user = req.user;
-
-  // Retrieve student details from Firestore
-  firestore
-    .collection("students")
-    .doc(user.uid)
-    .get()
-    .then((doc) => {
-      if (doc.exists) {
-        const studentDetails = doc.data();
-        res.sendFile(path.join(__dirname, "public", "home.html"));
-      } else {
-        res.status(404).send("Student details not found.");
-      }
-    })
-    .catch((error) => {
-      console.error("Error retrieving student details:", error);
-      res.status(500).send("Internal Server Error");
-    });
+// Initialize Firebase Admin SDK
+const serviceAccount = require("./serviceAccountKey.json");
+const firebaseConfig = require("./firebaseConfig.js");
+admin.initializeApp({
+  credential: admin.credential.cert(serviceAccount),
+  databaseURL: "https://proj-2535e-default-rtdb.firebaseio.com",
+  // Replace with your Firebase project URL
 });
+
+
+
+
 
 // Serve the home page with login buttons
 app.get("/", (req, res) => {
@@ -82,37 +63,115 @@ app.get("/", (req, res) => {
 });
 
 // Serve the registration pages
+//Student
 app.get("/register/student", (req, res) => {
-  res.render("students/student-registration");
+  res.render("admin/student-registration");
 });
 
+app.post("/register/student", (req, res) => {
+  console.log("Received POST request to /register/student");
+  const { firstName, lastName, idNumber, email, password } = req.body;
+
+  // Set the student's ID number as the document ID
+  const studentRef = firestore.collection("students").doc(idNumber);
+
+  // Save student data to Firestore
+  studentRef
+    .set({
+      firstName,
+      lastName,
+      idNumber,
+      email,
+      password,
+    })
+    .then(() => {
+      // Redirect to student dashboard after successful registration
+      res.redirect("/dashboard/student");
+    })
+    .catch((error) => {
+      console.error("Error registering student:", error);
+      res.status(500).send("Internal Server Error");
+    });
+});
+
+
+//Lecturer
 app.get("/register/lecturer", (req, res) => {
   res.render("admin/lecturer-registration");
+});
+
+//Course
+app.get("/register/course", (req, res) => {
+  res.render("admin/course-registration");
 });
 
 // Serve the login page
 app.get("/login", (req, res) => {
   res.render("login");
 });
+// Handle login form submission
+app.post("/login", (req, res) => {
+  const { email, password, userType } = req.body;
+
+  // Add logic to authenticate user based on userType
+  if (
+    email === "admin@usiu.ac.ke" &&
+    password === "admin1234" &&
+    userType === "lecturer"
+  ) {
+    // Redirect to admin home page
+    res.render("admin/admin-home");
+  } else if (userType === "student") {
+    // Handle student login
+    // ...
+  } else if (userType === "lecturer") {
+    // Handle lecturer login
+    // ...
+  } else {
+    // Invalid user type
+    res.status(400).send("Invalid user type");
+  }
+});
+
+//Serve admin stuff
+// Assuming you have an admin home route
+app.get("/admin-home", isAuthenticated, (req, res) => {
+  res.render("admin/admin-home");
+});
 
 // Serve the student dashboard
-app.get("/dashboard/student", isAuthenticated, (req, res) => {
+app.get("/dashboard/student", (req, res) => {
   res.render("students/st-dash");
   // Additional logic for the student dashboard can be added here
 });
 
 // Serve the lecturer dashboard
-app.get("/dashboard/lecturer", isAuthenticated, (req, res) => {
+app.get("/dashboard/lecturer", (req, res) => {
   res.render("lecturers/grade-students");
   // Additional logic for the lecturer dashboard can be added here
 });
 
 // Serve the course selection page for students
-app.get("/select-courses", isAuthenticated, (req, res) => {
+app.get("/select-courses", (req, res) => {
   res.render("students/st-select");
   // Implement course selection logic here
 });
 
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
+// Logout route
+app.get("/logout", (req, res) => {
+  // Destroy the session
+  req.session.destroy((err) => {
+    if (err) {
+      console.error("Error destroying session:", err);
+      res.status(500).send("Internal Server Error");
+    } else {
+      // Redirect to login after successful logout
+      res.redirect("/login");
+    }
+  });
+});
+
+//Listen to port
+app.listen(port, () => {
+  console.log(`Server is running on port ${port}`);
 });
