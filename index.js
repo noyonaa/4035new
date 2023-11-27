@@ -9,8 +9,8 @@ const exphbs = require("express-handlebars");
 const port = 3000; // Corrected variable name
 
 // Initialize Firebase Admin SDK
-const serviceAccount = require("./serviceAccountKey.json");
 const firebaseConfig = require("./firebaseConfig.js");
+const serviceAccount = require("./serviceAccountKey.json");
 admin.initializeApp({
   credential: admin.credential.cert(serviceAccount),
   databaseURL: "https://proj-2535e-default-rtdb.firebaseio.com",
@@ -65,32 +65,39 @@ app.get("/register/student", (req, res) => {
   res.render("admin/student-registration");
 });
 
-app.post("/register/student", (req, res) => {
-  console.log("Received POST request to /register/student");
-  const { firstName, lastName, idNumber, email, password } = req.body;
-  console.log("bleh blah blu");
-  // Set the student's ID number as the document ID
-  const studentRef = firestore.collection("students").doc(idNumber);
-
-  // Save student data to Firestore
-  studentRef
-    .set({
+app.post("/register/student", async (req, res) => {
+  try {
+    console.log("Received POST request to /register/student");
+    const { firstName, lastName, idNumber, email, password } = req.body;
+    console.log("Received data:", {
       firstName,
       lastName,
       idNumber,
       email,
       password,
-    })
-    .then(() => {
-      // Redirect to student dashboard after successful registration
-      console.log("Student registered successfully");
-      res.redirect("/dashboard/student");
-    })
-    .catch((error) => {
-      console.error("Error registering student:", error);
-      res.status(500).send("Internal Server Error");
     });
+
+    // Set the student's ID number as the document ID
+    const studentRef = firestore.collection("students").doc(idNumber);
+
+    // Save student data to Firestore
+    await studentRef.set({
+      firstName,
+      lastName,
+      idNumber,
+      email,
+      password,
+    });
+
+    // Redirect to student dashboard after successful registration
+    console.log("Student registered successfully");
+    res.redirect("/dashboard/student");
+  } catch (error) {
+    console.error("Error registering student:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
+
 
 //Lecturer
 app.get("/register/lecturer", (req, res) => {
