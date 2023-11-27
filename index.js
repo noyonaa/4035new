@@ -97,6 +97,30 @@ app.get("/register/lecturer", (req, res) => {
   res.render("admin/lecturer-registration");
 });
 
+app.post("/register/lecturer", (req, res) => {
+  const { firstName, lastName, idNumber, email, password, course } = req.body;
+
+  const lecturerRef = admin.firestore().collection("lecturers").doc(idNumber);
+
+  lecturerRef
+    .set({
+      firstName,
+      lastName,
+      idNumber,
+      email,
+      password, // Consider storing a hashed version of the password
+      course,
+    })
+    .then(() => {
+      console.log("Lecturer registered successfully");
+      res.redirect("/some-success-page"); // Redirect or send a response as needed
+    })
+    .catch((error) => {
+      console.error("Error registering lecturer:", error);
+      res.status(500).send("Internal Server Error");
+    });
+});
+
 //Course
 app.get("/register/course", (req, res) => {
   res.render("admin/course-registration");
@@ -135,6 +159,22 @@ app.post("/login", (req, res) => {
 app.get("/admin-home", isAuthenticated, (req, res) => {
   res.render("admin/admin-home");
 });
+
+//Fetching student data
+app.get("/fetch-students", async (req, res) => {
+  try {
+    const students = [];
+    const querySnapshot = await admin.firestore().collection("students").get();
+    querySnapshot.forEach((doc) => {
+      students.push({ id: doc.id, ...doc.data() });
+    });
+    res.json(students);
+  } catch (error) {
+    console.error("Error fetching students:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 
 // Serve the student dashboard
 app.get("/dashboard/student", (req, res) => {

@@ -1,34 +1,51 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Home</title>
-  <!-- Add Bootstrap CSS -->
-  <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <style>
+      body { background-color: #e9ecef; /* A light grey background */
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; } .container
+      { box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Add a subtle shadow to
+      container */ background-color: #fff; /* White background for the container
+      */ border-radius: 8px; /* Slightly rounded corners */ padding: 40px; } h2
+      { color: #004080; /* A deep blue color for the heading */ margin-bottom:
+      30px; /* More space below the heading */ } .btn-primary {
+      background-color: #004080; /* Deep blue background for buttons */ border:
+      none; padding: 10px 20px; /* Larger padding for buttons */ font-size:
+      18px; /* Larger font size */ } .btn-primary:hover { background-color:
+      #003060; /* Slightly darker blue on hover */ }
+    </style>
+  </head>
+  <body>
 
-<div class="container mt-5">
-  <h2 class="text-center">Welcome to WhiteBoard</h2>
-
-  <!-- Login Buttons -->
-  <div class="row justify-content-center mt-4">
-    <div class="col-md-6">
-      <!-- Student Login Button -->
-      <a href="/login" class="btn btn-primary btn-block mb-2">Login</a>
-
-      <!-- Lecturer Login Button -->
-      <!-- You can customize the href for lecturer login if needed -->
-      <!-- <a href="/lecturer-login" class="btn btn-primary btn-block mb-2">Lecturer Login</a> -->
+    <div class="container mt-5">
+      <h2 class="text-center">Welcome to WhiteBoard</h2>
+      <!-- Login Buttons -->
+      <div class="row justify-content-center mt-4">
+        <div class="col-md-6">
+          <!-- Student Login Button -->
+          <a href="/login" class="btn btn-primary btn-block mb-2">Login</a>
+          <!-- Lecturer Login Button -->
+          <!-- You can customize the href for lecturer login if needed -->
+          <!-- <a href="/lecturer-login" class="btn btn-primary btn-block mb-2">Lecturer Login</a> -->
+        </div>
+      </div>
     </div>
-  </div>
-</div>
 
-<!-- Add Bootstrap and Popper.js scripts -->
-<script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.8/dist/umd/popper.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"></script>
+    <!-- Bootstrap and Popper.js scripts -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.8/dist/umd/popper.min.js"
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.min.js"
+    ></script>
 
-</body>
+  </body>
 </html>
