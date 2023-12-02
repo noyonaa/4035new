@@ -140,12 +140,22 @@ app.post("/register/lecturer", async (req, res) => {
   try {
     const { firstName, lastName, idNumber, email, password, course } = req.body;
 
+     console.log("Received data:", {
+       firstName,
+       lastName,
+       idNumber,
+       email,
+       password,
+       course,
+     });
+    
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
     await firestore.collection("Lecturers").doc(idNumber).set({
       firstName,
       lastName,
       idNumber,
       email,
-      password, // Consider storing a hashed version of the password
+      hashedPassword, // Consider storing a hashed version of the password
       course,
     });
 
@@ -207,7 +217,16 @@ app.post("/login", async (req, res) => {
         // Include other necessary fields but exclude sensitive data like hashedPassword
       };
     } else if (userType === "lecturer") {
-      userDoc = await firestore.collection("lecturers").doc(id).get();
+      userDoc = await firestore.collection("Lecturers").doc(id).get();
+      req.session.user = {
+        id: userDoc.id,
+        userType: "lecturer",
+        firstName: userDoc.data().firstName,
+        lastName: userDoc.data().lastName,
+        email: userDoc.data().email,
+        course: userDoc.data().course,
+        // Include other necessary fields but exclude sensitive data like hashedPassword
+      };
     } else {
       return res.status(400).send("Invalid user type");
     }
@@ -272,6 +291,50 @@ app.get("/dashboard/lecturer", (req, res) => {
   res.render("lecturers/grade-students");
   // Additional logic for the lecturer dashboard can be added here
 });
+
+app.get("/fetch-course-students", async (req, res) => {
+  try {
+    const course = req.session.user.course;
+    const students = [];
+    const querySnapshot = await admin
+      .firestore()
+      .collection("Courses")
+      .doc(course)
+      .collection("stList")
+      .get();
+
+    querySnapshot.forEach((doc) => {
+      students.push({ id: doc.id, ...doc.data() });
+    });
+
+    console.log(students); // Corrected this line
+    res.json(students);
+  } catch (error) {
+    console.error("Error fetching students:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+// Route to update student grades
+app.post("/update-student-grades", async (req, res) => {
+  const { id, assignment1, assignment2, CAT1, CAT2 } = req.body;
+  const course = req.session.user.course;
+  
+  try {
+    await admin.firestore().collection("Courses").doc(course).collection("stList").doc(id).update({
+      assignment1,
+      assignment2,
+      CAT1,
+      CAT2
+    });
+    // message("graded successfully");
+    res.redirect("/dashbaord/lecturer")
+  } catch (error) {
+    console.error("Error updating student grades:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 
 // Serve the course selection page for students
 // Route to display available courses
@@ -359,6 +422,35 @@ app.get("/get-session-user-student", async (request, response) => {
         lastName: userDoc.data().lastName,
         email: userDoc.data().email,
         courses: userDoc.data().courses,
+      });
+    } catch (error) {
+      console.error("Error fetching student data: ", error);
+      response.status(500).send("Internal Server Error");
+    }
+  } else {
+    response.status(401).send("No session user data found");
+  }
+});
+
+app.get("/get-session-user-lecturer", async (request, response) => {
+  if (request.session && request.session.userId) {
+    try {
+      const userDoc = await firestore
+        .collection("lecturers")
+        .doc(request.session.userId)
+        .get();
+
+      if (!userDoc.exists) {
+        return response.status(404).send("Lecturer not found");
+      }
+
+      response.json({
+        id: userDoc.id,
+        userType: "lecturer",
+        firstName: userDoc.data().firstName,
+        lastName: userDoc.data().lastName,
+        email: userDoc.data().email,
+        course: userDoc.data().course,
       });
     } catch (error) {
       console.error("Error fetching student data: ", error);
