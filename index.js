@@ -53,7 +53,7 @@ app.set("views", "views");
 
 // cookie parser middleware
 app.use(cookieParser());
-app.use(cors())
+app.use(cors());
 
 // Configure session
 app.use(
@@ -97,7 +97,7 @@ app.get("/register/student", (req, res) => {
 app.post("/register/student", async (req, res) => {
   try {
     console.log("Received POST request to /register/student");
-    const { firstName, lastName, idNumber, email, password, course1, course2 } =
+    const { firstName, lastName, idNumber, email, password, } =
       req.body;
     console.log("Received data:", {
       firstName,
@@ -105,8 +105,6 @@ app.post("/register/student", async (req, res) => {
       idNumber,
       email,
       password,
-      course1,
-      course2,
     });
 
     const hashedPassword = await bcrypt.hash(password, saltRounds);
@@ -122,11 +120,11 @@ app.post("/register/student", async (req, res) => {
         idNumber,
         email,
         hashedPassword,
-        courses: [course1, course2],
+        courses: [],
       });
     // Redirect to student dashboard after successful registration
     console.log("Student registered successfully");
-    res.redirect("/dashboard/student");
+    res.redirect("/admin-home");
   } catch (error) {
     console.error("Error registering student:", error);
     res.status(500).send("Internal Server Error");
@@ -152,7 +150,7 @@ app.post("/register/lecturer", async (req, res) => {
     });
 
     console.log("Lecturer registered successfully");
-    res.redirect("/some-success-page"); // Redirect or send a response as needed
+    res.redirect("/admin-home"); // Redirect or send a response as needed
   } catch (error) {
     console.error("Error registering lecturer:", error);
     res.status(500).send("Internal Server Error");
@@ -164,6 +162,23 @@ app.get("/register/course", (req, res) => {
   res.render("admin/course-registration");
 });
 
+app.post("/register/course", async (req, res) => {
+  try {
+    const { courseCode, courseDescription } = req.body;
+
+    await firestore.collection("Courses").doc(courseCode).set({
+      courseCode,
+      courseDescription,
+    });
+
+    console.log("course registered successfully");
+    res.redirect("/admin-home"); // Redirect or send a response as needed
+  } catch (error) {
+    console.error("Error registering lecturer:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 // Serve the login page
 app.get("/login", (req, res) => {
   res.render("login");
@@ -172,6 +187,11 @@ app.get("/login", (req, res) => {
 // Handle login form submission
 app.post("/login", async (req, res) => {
   const { id, password, userType } = req.body;
+
+  if (id === "123" && password === "admin123" && userType === "lecturer") {
+    req.session.userId = id;
+    res.redirect("/admin-home");
+  }
 
   try {
     let userDoc;
@@ -183,11 +203,11 @@ app.post("/login", async (req, res) => {
         firstName: userDoc.data().firstName,
         lastName: userDoc.data().lastName,
         email: userDoc.data().email,
+        courses: userDoc.data().courses,
         // Include other necessary fields but exclude sensitive data like hashedPassword
       };
     } else if (userType === "lecturer") {
       userDoc = await firestore.collection("lecturers").doc(id).get();
-      
     } else {
       return res.status(400).send("Invalid user type");
     }
@@ -222,10 +242,9 @@ app.post("/login", async (req, res) => {
 
 //Serve admin stuff
 // Assuming you have an admin home route
-app.get("/admin-home", isAuthenticated, (req, res) => {
+app.get("/admin-home", (req, res) => {
   res.render("admin/admin-home");
 });
-
 
 //Fetching student data
 app.get("/fetch-students", async (req, res) => {
@@ -255,18 +274,79 @@ app.get("/dashboard/lecturer", (req, res) => {
 });
 
 // Serve the course selection page for students
-app.get("/student/selectcourses", (req, res) => {
-  res.render("students/st-select");
-  // Implement course selection logic here
+// Route to display available courses
+app.get("/student/selectcourses", async (req, res) => {
+  try {
+    const coursesSnapshot = await firestore.collection("Courses").get();
+    const courses = [];
+    coursesSnapshot.forEach(doc => {
+      courses.push(doc.data());
+    });
+    
+    res.render("students/st-select", { courses });
+  } catch (error) {
+    console.error("Error fetching courses:", error);
+    res.status(500).send("Internal Server Error");
+  }
 });
 
+app.post("/student/enroll-course", async (req, res) => {
+  const { courseCode } = req.body;
+  const studentId = req.session.userId;
 
-//getting user session
+  if (!studentId) {
+    return res.status(401).send("Not authenticated");
+  }
+
+  try {
+    // Fetch the student's document
+    const studentDocRef = firestore.collection("Students").doc(studentId);
+    const studentDoc = await studentDocRef.get();
+
+    if (!studentDoc.exists) {
+      return res.status(404).send("Student not found");
+    }
+
+    // Add the new course to the student's courses list
+    const currentCourses = studentDoc.data().courses || [];
+    if (!currentCourses.includes(courseCode)) {
+      await studentDocRef.update({
+        courses: [...currentCourses, courseCode],
+      });
+
+      await firestore
+        .collection("Courses")
+        .doc(courseCode)
+        .collection("stList")
+        .doc(studentId)
+        .set({
+          firstName: studentDoc.data().firstName,
+          lastName: studentDoc.data().lastName,
+          idNumber: studentId,
+          email: studentDoc.data().email,
+          assignment1: null,
+          assignment2: null,
+          CAT1: null,
+          CAT2: null,
+        });
+    }
+
+    res.redirect("/student/selectcourses");
+  } catch (error) {
+    console.error("Error enrolling in course:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+//getting user sessions
 
 app.get("/get-session-user-student", async (request, response) => {
   if (request.session && request.session.userId) {
     try {
-      const userDoc = await firestore.collection("Students").doc(request.session.userId).get();
+      const userDoc = await firestore
+        .collection("Students")
+        .doc(request.session.userId)
+        .get();
 
       if (!userDoc.exists) {
         return response.status(404).send("Student not found");
@@ -278,6 +358,7 @@ app.get("/get-session-user-student", async (request, response) => {
         firstName: userDoc.data().firstName,
         lastName: userDoc.data().lastName,
         email: userDoc.data().email,
+        courses: userDoc.data().courses,
       });
     } catch (error) {
       console.error("Error fetching student data: ", error);
@@ -287,6 +368,7 @@ app.get("/get-session-user-student", async (request, response) => {
     response.status(401).send("No session user data found");
   }
 });
+
 
 // Logout route
 app.get("/logout", (req, res) => {
@@ -301,7 +383,6 @@ app.get("/logout", (req, res) => {
     }
   });
 });
-
 
 //Listen to port
 app.listen(port, () => {
