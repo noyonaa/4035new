@@ -580,6 +580,44 @@ app.get("/generate-pass-report", async (req, res) => {
   }
 });
 
+app.get("/generate-fail-report", async (req, res) => {
+  try {
+    const courses = [];
+    const coursesSnapshot = await firestore.collection("Courses").get();
+
+    for (const courseDoc of coursesSnapshot.docs) {
+      const studentsList = [];
+      const studentsSnapshot = await courseDoc.ref.collection("stList").get();
+
+      studentsSnapshot.forEach((studentDoc) => {
+        const studentData = studentDoc.data();
+        if (
+          parseInt(studentData.assignment1) <= 8 ||
+          parseInt(studentData.assignment2) <= 8 ||
+          parseInt(studentData.CAT1) <= 15 ||
+          parseInt(studentData.CAT2) <= 15 ||
+          parseInt(studentData.Exam) <= 25
+        ) {
+          studentsList.push({ id: studentDoc.id, ...studentData });
+        }
+      });
+
+      if (studentsList.length > 0) {
+        courses.push({
+          courseCode: courseDoc.id,
+          courseDescription: courseDoc.data().courseDescription,
+          students: studentsList,
+        });
+      }
+    }
+
+    res.render("admin/fail-report", { courses });
+  } catch (error) {
+    console.error("Error generating fail report:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 // Logout route
 app.get("/logout", (req, res) => {
   // Destroy the session
