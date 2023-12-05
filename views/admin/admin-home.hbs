@@ -1,141 +1,114 @@
 <!-- admin-home.hbs -->
 
 <html lang="en">
-<head>
+  <head>
     <meta charset="UTF-8" />
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Admin Home</title>
     <!-- Bootstrap CSS link -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet" />
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
     <!-- Additional styles -->
     <style>
-        body {
-            background-color: #f4f4f4; /* Light gray for a clean, modern look */
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-        }
-
-        .container {
-            margin-top: 20px;
-            color: #333; /* Dark gray for text */
-        }
-
-        .navbar {
-            background-color: #343a40; /* Bootstrap's dark color for modern feel */
-            padding: 1rem 0;
-        }
-
-        .navbar-brand {
-            color: #fff; /* White for contrast against dark navbar */
-            font-size: 1.5rem;
-            font-weight: bold;
-        }
-
-        .navbar-nav .nav-link {
-            color: #ddd; /* Light gray for navbar links */
-        }
-
-        .navbar-nav .nav-link:hover {
-            color: #fff; /* White on hover */
-        }
-
-        h2 {
-            color: #343a40; /* Dark gray for heading to match navbar */
-        }
-
-        .btn {
-            color: #fff;
-            font-weight: bold;
-            margin-bottom: 10px; /* Add bottom margin to buttons */
-        }
-
-        .btn-primary {
-            background-color: #007bff; /* Bootstrap primary blue for a pop of color */
-        }
-
-        .btn-success {
-            background-color: #28a745; /* Bootstrap success green */
-        }
-
-        .btn-info {
-            background-color: #17a2b8; /* Bootstrap info blue */
-        }
+      body { background-color: #f4f4f4; /* Light gray for a clean, modern look
+      */ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+      .container { margin-top: 20px; color: #333; /* Dark gray for text */ }
+      .navbar { background-color: #343a40; /* Bootstrap's dark color for modern
+      feel */ padding: 1rem 0; } .navbar-brand { color: #fff; /* White for
+      contrast against dark navbar */ font-size: 1.5rem; font-weight: bold; }
+      .navbar-nav .nav-link { color: #ddd; /* Light gray for navbar links */ }
+      .navbar-nav .nav-link:hover { color: #fff; /* White on hover */ } h2 {
+      color: #343a40; /* Dark gray for heading to match navbar */ } .btn {
+      color: #fff; font-weight: bold; margin-bottom: 10px; /* Add bottom margin
+      to buttons */ } .btn-primary { background-color: #007bff; /* Bootstrap
+      primary blue for a pop of color */ } .btn-success { background-color:
+      #28a745; /* Bootstrap success green */ } .btn-info { background-color:
+      #17a2b8; /* Bootstrap info blue */ }
     </style>
-</head>
+  </head>
 
-<body>
+  <body>
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-        <a class="navbar-brand" href="#">WHITEBOARD</a>
-        <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ml-auto">
-                <li class="nav-item">
-                    <a class="nav-link" href="/logout">Logout</a>
-                </li>
-            </ul>
-        </div>
+      <a class="navbar-brand" href="#">WHITEBOARD</a>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/logout">Logout</a>
+          </li>
+        </ul>
+      </div>
     </nav>
 
     <div class="container">
-        <h2>Welcome to the Admin Dashboard</h2>
+      <h2>Welcome to the Admin Dashboard</h2>
 
-        <div class="btn-container">
-            <div class="row">
-                <div class="col-md-6">
-                    <a href="/register/student" class="btn btn-primary btn-lg btn-block">Register a New Student</a>
-                </div>
-                <div class="col-md-6">
-                    <a href="/register/lecturer" class="btn btn-success btn-lg btn-block">Register a New Lecturer</a>
-                </div>
-                <div class="col-md-12 mt-3">
-                    <a href="/register/course" class="btn btn-info btn-lg btn-block">Add a New Course</a>
-                </div>
-            </div>
+      <div class="btn-container">
+        <div class="row">
+          <div class="col-md-6">
+            <a
+              href="/register/student"
+              class="btn btn-primary btn-lg btn-block"
+            >Register a New Student</a>
+          </div>
+          <div class="col-md-6">
+            <a
+              href="/register/lecturer"
+              class="btn btn-success btn-lg btn-block"
+            >Register a New Lecturer</a>
+          </div>
+          <div class="col-md-12 mt-3">
+            <a href="/register/course" class="btn btn-info btn-lg btn-block">Add
+              a New Course</a>
+          </div>
+          <div class="col-md-12 mt-3">
+            <a
+              href="/generate-course-report"
+              class="btn btn-info btn-lg btn-block"
+            >Generate null reports</a>
+          </div>
         </div>
-        <div class="mt-5">
-            <h3>Student Management</h3>
-            <table class="table">
-                <thead class="thead-light">
-                    <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Name</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">Actions</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    
-                </tbody>
-            </table>
-        </div>
+      </div>
+      <div class="mt-5">
+        <h3>Student Management</h3>
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <script>
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('/fetch-students')
-            .then(response => response.json())
-            .then(students => {
-                const tbody = document.querySelector('table tbody');
-                students.forEach(student => {
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${student.id}</td>
-                        <td>${student.firstName} ${student.lastName}</td>
-                        <td>${student.email}</td>
-                        <td>
-                            <!-- Edit/Delete buttons here -->
-                            <button class="btn btn-info btn-sm">Edit</button>
-                            <button class="btn btn-danger btn-sm">Delete</button>
-                        </td>`;
-                    tbody.appendChild(tr);
-                });
-            })
-            .catch(error => console.error('Error:', error));
-    });
-</script>
+      document.addEventListener('DOMContentLoaded', function() {
+      fetch('/fetch-students') .then(response => response.json()) .then(students
+      => { const tbody = document.querySelector('table tbody');
+      students.forEach(student => { const tr = document.createElement('tr');
+      tr.innerHTML = ` <td>${student.id}</td> <td>${student.firstName}
+      ${student.lastName}</td> <td>${student.email}</td> <td> <!-- Edit/Delete
+      buttons here --> <button class="btn btn-info btn-sm">Edit</button> <button
+      class="btn btn-danger btn-sm">Delete</button> </td>`;
+      tbody.appendChild(tr); }); }) .catch(error => console.error('Error:',
+      error)); });
+    </script>
 
     <!-- Bootstrap JS and Popper.js scripts (required for Bootstrap) -->
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
-</body>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+    ></script>
+  </body>
 </html>

@@ -97,8 +97,7 @@ app.get("/register/student", (req, res) => {
 app.post("/register/student", async (req, res) => {
   try {
     console.log("Received POST request to /register/student");
-    const { firstName, lastName, idNumber, email, password, } =
-      req.body;
+    const { firstName, lastName, idNumber, email, password } = req.body;
     console.log("Received data:", {
       firstName,
       lastName,
@@ -111,17 +110,14 @@ app.post("/register/student", async (req, res) => {
     // Set the student's ID number as the document ID
 
     // Save student data to Firestore
-    await firestore
-      .collection("Students")
-      .doc(idNumber)
-      .set({
-        firstName,
-        lastName,
-        idNumber,
-        email,
-        hashedPassword,
-        courses: [],
-      });
+    await firestore.collection("Students").doc(idNumber).set({
+      firstName,
+      lastName,
+      idNumber,
+      email,
+      hashedPassword,
+      courses: [],
+    });
     // Redirect to student dashboard after successful registration
     console.log("Student registered successfully");
     res.redirect("/admin-home");
@@ -140,15 +136,15 @@ app.post("/register/lecturer", async (req, res) => {
   try {
     const { firstName, lastName, idNumber, email, password, course } = req.body;
 
-     console.log("Received data:", {
-       firstName,
-       lastName,
-       idNumber,
-       email,
-       password,
-       course,
-     });
-    
+    console.log("Received data:", {
+      firstName,
+      lastName,
+      idNumber,
+      email,
+      password,
+      course,
+    });
+
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     await firestore.collection("Lecturers").doc(idNumber).set({
       firstName,
@@ -265,6 +261,20 @@ app.get("/admin-home", (req, res) => {
   res.render("admin/admin-home");
 });
 
+app.get("/fetch-passed", async (req, res) => {
+  try {
+    const students = [];
+    const querySnapshot = await admin.firestore().collection("Students").get();
+    querySnapshot.forEach((doc) => {
+      students.push({ id: doc.id, ...doc.data() });
+    });
+    res.json(students);
+  } catch (error) {
+    console.error("Error fetching students:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 //Fetching student data
 app.get("/fetch-students", async (req, res) => {
   try {
@@ -317,24 +327,39 @@ app.get("/fetch-course-students", async (req, res) => {
 
 // Route to update student grades
 app.post("/update-student-grades", async (req, res) => {
-  const { id, assignment1, assignment2, CAT1, CAT2 } = req.body;
+  const { id, assignment1, assignment2, CAT1, CAT2, Exam } = req.body;
   const course = req.session.user.course;
-  
+
   try {
-    await admin.firestore().collection("Courses").doc(course).collection("stList").doc(id).update({
+    // Make sure these values are correctly being received
+    console.log("Received grades to update:", {
+      id,
       assignment1,
       assignment2,
       CAT1,
-      CAT2
+      CAT2,
+      Exam,
     });
-    // message("graded successfully");
-    res.redirect("/dashbaord/lecturer")
+
+    await admin
+      .firestore()
+      .collection("Courses")
+      .doc(course)
+      .collection("stList")
+      .doc(id)
+      .update({
+        assignment1,
+        assignment2,
+        CAT1,
+        CAT2,
+        Exam,
+      });
+    console.log("Grades updated successfully");
   } catch (error) {
     console.error("Error updating student grades:", error);
     res.status(500).send("Internal Server Error");
   }
 });
-
 
 // Serve the course selection page for students
 // Route to display available courses
@@ -342,10 +367,10 @@ app.get("/student/selectcourses", async (req, res) => {
   try {
     const coursesSnapshot = await firestore.collection("Courses").get();
     const courses = [];
-    coursesSnapshot.forEach(doc => {
+    coursesSnapshot.forEach((doc) => {
       courses.push(doc.data());
     });
-    
+
     res.render("students/st-select", { courses });
   } catch (error) {
     console.error("Error fetching courses:", error);
@@ -391,14 +416,20 @@ app.post("/student/enroll-course", async (req, res) => {
           assignment2: null,
           CAT1: null,
           CAT2: null,
+          Exam: null,
         });
     }
 
-    res.redirect("/student/selectcourses");
+    res.redirect("/dashboard/student");
   } catch (error) {
     console.error("Error enrolling in course:", error);
     res.status(500).send("Internal Server Error");
   }
+});
+
+app.get("/reports", (req, res) => {
+  res.render("admin/report-generation");
+  // Additional logic for the student dashboard can be added here
 });
 
 //getting user sessions
@@ -461,6 +492,92 @@ app.get("/get-session-user-lecturer", async (request, response) => {
   }
 });
 
+app.get("/path-to-get-course/:courseId", async (req, res) => {
+  const courseId = req.params.courseId;
+
+  try {
+    const courseDoc = await admin
+      .firestore()
+      .collection("Courses")
+      .doc(courseId)
+      .get();
+    if (!courseDoc.exists) {
+      return res.status(404).send("Course not found");
+    }
+
+    const courseData = courseDoc.data();
+    res.json({ id: courseId, ...courseData });
+  } catch (error) {
+    console.error("Error fetching course:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/generate-course-report", async (req, res) => {
+  try {
+    const courses = [];
+    const coursesSnapshot = await firestore.collection("Courses").get();
+
+    for (const courseDoc of coursesSnapshot.docs) {
+      const studentsList = [];
+      const studentsSnapshot = await courseDoc.ref.collection("stList").get();
+
+      studentsSnapshot.forEach((studentDoc) => {
+        studentsList.push({ id: studentDoc.id, ...studentDoc.data() });
+      });
+
+      courses.push({
+        courseCode: courseDoc.id,
+        courseDescription: courseDoc.data().courseDescription,
+        students: studentsList,
+      });
+    }
+
+    // Render the report template with the fetched courses and their students
+    res.render("admin/report-generation", { courses });
+  } catch (error) {
+    console.error("Error generating course report:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
+app.get("/generate-pass-report", async (req, res) => {
+  try {
+    const courses = [];
+    const coursesSnapshot = await firestore.collection("Courses").get();
+
+    for (const courseDoc of coursesSnapshot.docs) {
+      const studentsList = [];
+      const studentsSnapshot = await courseDoc.ref.collection("stList").get();
+
+      studentsSnapshot.forEach((studentDoc) => {
+        const studentData = studentDoc.data();
+        if (
+          studentData.assignment1 > 8 &&
+          studentData.assignment2 > 8 &&
+          studentData.CAT1 > 15 &&
+          studentData.CAT2 > 15 &&
+          studentData.Exam > 25
+        ) {
+          studentsList.push({ id: studentDoc.id, ...studentData });
+        }
+      });
+
+      if (studentsList.length > 0) {
+        courses.push({
+          courseCode: courseDoc.id,
+          courseDescription: courseDoc.data().courseDescription,
+          students: studentsList,
+        });
+      }
+    }
+
+    res.render("admin/pass-report", { courses });
+  } catch (error) {
+    console.error("Error generating pass report:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
 
 // Logout route
 app.get("/logout", (req, res) => {
