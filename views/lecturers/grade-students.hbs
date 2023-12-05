@@ -29,7 +29,7 @@
       #17a2b8; /* Bootstrap info blue */ } .custom-container { padding-left: 0;
       /* Reduces the left padding */ /* Or use margin-left if you want to adjust
       the margin instead */ /* margin-left: 0; */ } .narrow-column { width:
-      100px; /* Adjust the width as needed */ }
+      25px; /* Adjust the width as needed */ }
     </style>
   </head>
 
@@ -48,7 +48,7 @@
     <div class="custom-container">
       <h2>Welcome to Lecturer Dashboard</h2>
 
-      <div class="mt-5">
+      <div class="table-responsive">
         <h3>Student Management</h3>
         <table class="table">
           <thead class="thead-light">
@@ -73,39 +73,26 @@
 
     <script>
       document.addEventListener('DOMContentLoaded', function() {
-    fetch('/fetch-course-students')
-        .then(response => response.json())
-        .then(students => {
-            const tbody = document.querySelector('table tbody');
-            students.forEach((student, index) => {
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td>${student.id}</td>
-                    <td>${student.firstName} ${student.lastName}</td>
-                    <td>${student.email}</td>
-                    <td><input type="text" form="form-${index}" name="assignment1" value="${student.assignment1 || ''}"></td>
-                    <td><input type="text" form="form-${index}" name="assignment2" value="${student.assignment2 || ''}"></td>
-                    <td><input type="text" form="form-${index}" name="CAT1" value="${student.CAT1 || ''}"></td>
-                    <td><input type="text" form="form-${index}" name="CAT2" value="${student.CAT2 || ''}"></td>
-                    <td><input type="text" form="form-${index}" name="Exam" value="${student.Exam || ''}"></td>
-                    <td>
-                        <form id="form-${index}" action="/update-student-grades" method="post">
-                            <input type="hidden" name="id" value="${student.id}">
-                            <button type="submit" class="btn btn-info btn-sm" >Edit</button>
-                        </form>
-                    </td>`;
-
-                tbody.appendChild(tr);
-
-                // Add an event listener to the Edit button
-                const editButton = document.getElementById(`edit-btn-${index}`);
-                editButton.addEventListener('click', function() {
-                    this.disabled = true;
-                });
-            });
-        })
-        .catch(error => console.error('Error:', error));
-});
+      fetch('/fetch-course-students') .then(response => response.json())
+      .then(students => { const tbody = document.querySelector('table tbody');
+      students.forEach((student, index) => { const tr =
+      document.createElement('tr'); tr.innerHTML = ` <td>${student.id}</td>
+      <td>${student.firstName} ${student.lastName}</td>
+      <td>${student.email}</td> <td><input type="text" form="form-${index}"
+      name="assignment1" value="${student.assignment1 || ''}"></td> <td><input
+      type="text" form="form-${index}" name="assignment2"
+      value="${student.assignment2 || ''}"></td> <td><input type="text"
+      form="form-${index}" name="CAT1" value="${student.CAT1 || ''}"></td>
+      <td><input type="text" form="form-${index}" name="CAT2"
+      value="${student.CAT2 || ''}"></td> <td><input type="text"
+      form="form-${index}" name="Exam" value="${student.Exam || ''}"></td> <td>
+      <form id="form-${index}" action="/update-student-grades" method="post">
+      <input type="hidden" name="id" value="${student.id}"> <button
+      type="submit" class="btn btn-info btn-sm" >Edit</button> </form> </td>`;
+      tbody.appendChild(tr); // Add an event listener to the Edit button const
+      editButton = document.getElementById(`edit-btn-${index}`);
+      editButton.addEventListener('click', function() { this.disabled = true;
+      }); }); }) .catch(error => console.error('Error:', error)); });
     </script>
 
     <!-- Bootstrap JS and Popper.js scripts (required for Bootstrap) -->
