@@ -1,0 +1,99 @@
+<!-- admin-home.hbs -->
+
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Admin Home</title>
+    <!-- Bootstrap CSS link -->
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- Additional styles -->
+    <style>
+      body { background-color: #f4f4f4; /* Light gray for a clean, modern look
+      */ font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+      .container { margin-top: 20px; color: #333; /* Dark gray for text */ }
+      .navbar { background-color: #343a40; /* Bootstrap's dark color for modern
+      feel */ padding: 1rem 0; } .navbar-brand { color: #fff; /* White for
+      contrast against dark navbar */ font-size: 1.5rem; font-weight: bold; }
+      .navbar-nav .nav-link { color: #ddd; /* Light gray for navbar links */ }
+      .navbar-nav .nav-link:hover { color: #fff; /* White on hover */ } h2 {
+      color: #343a40; /* Dark gray for heading to match navbar */ } .btn {
+      color: #fff; font-weight: bold; margin-bottom: 10px; /* Add bottom margin
+      to buttons */ } .btn-primary { background-color: #007bff; /* Bootstrap
+      primary blue for a pop of color */ } .btn-success { background-color:
+      #28a745; /* Bootstrap success green */ } .btn-info { background-color:
+      #17a2b8; /* Bootstrap info blue */ }
+    </style>
+  </head>
+
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <a class="navbar-brand" href="#">WHITEBOARD</a>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav ml-auto">
+          <li class="nav-item">
+            <a class="nav-link" href="/logout">Logout</a>
+          </li>
+        </ul>
+      </div>
+    </nav>
+
+    <div class="container">
+      <h2>Welcome to Lecturer Dashboard</h2>
+
+      <div class="mt-5">
+        <h3>Student Management</h3>
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Assignment 1</th>
+              <th scope="col">Assignment 2</th>
+              <th scope="col">CAT 1</th>
+              <th scope="col">CAT 2</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      document.addEventListener('DOMContentLoaded', function() {
+      fetch('/fetch-course-students') .then(response => response.json())
+      .then(students => { const tbody = document.querySelector('table tbody');
+      students.forEach((student, index) => { const tr =
+      document.createElement('tr'); tr.innerHTML = ` <td>${student.id}</td>
+      <td>${student.firstName} ${student.lastName}</td>
+      <td>${student.email}</td> <td><input type="text" form="form-${index}"
+      name="assignment1" value="${student.assignment1 || ''}"></td> <td><input
+      type="text" form="form-${index}" name="assignment2"
+      value="${student.assignment2 || ''}"></td> <td><input type="text"
+      form="form-${index}" name="CAT1" value="${student.CAT1 || ''}"></td>
+      <td><input type="text" form="form-${index}" name="CAT2"
+      value="${student.CAT2 || ''}"></td> <td> <form id="form-${index}"
+      action="/update-student-grades" method="post"> <input type="hidden"
+      name="id" value="${student.id}"> <button type="submit" class="btn btn-info
+      btn-sm">Edit</button> </form> </td>`; tbody.appendChild(tr); }); })
+      .catch(error => console.error('Error:', error)); });
+    </script>
+
+    <!-- Bootstrap JS and Popper.js scripts (required for Bootstrap) -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.10.2/dist/umd/popper.min.js"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"
+    ></script>
+  </body>
+</html>
