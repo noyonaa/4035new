@@ -1,42 +1,57 @@
-<!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Select Courses</title>
     <!-- Bootstrap CSS -->
-    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" rel="stylesheet">
-</head>
-<body>
+    <link
+      href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <div class="container mt-5">
-        <h2>Available Courses</h2>
-         {{#each courses}}
-      <div class="card mt-3">
-        <div class="card-body">
-          <h5 class="card-title">{{this.courseCode}}</h5>
-          <p class="card-text">{{this.courseDescription}}</p>
+      <h2>Available Courses</h2>
+      {{#each courses}}
+        <div class="card mt-3">
+          <div class="card-body">
+            <h5 class="card-title">{{this.courseCode}}</h5>
+            <p class="card-text">{{this.courseDescription}}</p>
+          </div>
         </div>
-      </div>
-    {{/each}}
+      {{/each}}
     </div>
 
     <!-- Form to submit course code -->
     <div class="container mt-4">
-        <h3>Enroll in a Course</h3>
-        <form action="/student/enroll-course" method="post">
-            <div class="form-group">
-                <label for="courseCode">Course Code</label>
-                <input type="text" class="form-control" id="courseCode" name="courseCode" required>
-            </div>
-            <button type="submit" class="btn btn-primary">Enroll</button>
-        </form>
+      <h3>Enroll in a Course</h3>
+      <form action="/student/enroll-course" method="post">
+        <div class="form-group">
+          <label for="courseCode">Course Code</label>
+          {{! <input type="text" class="form-control" id="courseCode" name="courseCode" required> }}
+          <select
+            class="form-control"
+            id="courseCode"
+            name="courseCode"
+            required
+          >
+            <option value="">Please select a course</option>
+          </select>
+
+        </div>
+        <button type="submit" class="btn btn-primary">Enroll</button>
+      </form>
     </div>
 
     <!-- Bootstrap JS -->
     <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
-    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
+    ></script>
+    <script
+      src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"
+    ></script>
     <!-- Custom JS -->
     <script src="/js/st-select.js"></script>
-</body>
+  </body>
 </html>

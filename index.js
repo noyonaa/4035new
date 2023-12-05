@@ -355,6 +355,7 @@ app.post("/update-student-grades", async (req, res) => {
         Exam,
       });
     console.log("Grades updated successfully");
+    res.render("lecturers/grade-students");
   } catch (error) {
     console.error("Error updating student grades:", error);
     res.status(500).send("Internal Server Error");
@@ -553,11 +554,11 @@ app.get("/generate-pass-report", async (req, res) => {
       studentsSnapshot.forEach((studentDoc) => {
         const studentData = studentDoc.data();
         if (
-          studentData.assignment1 > 8 &&
-          studentData.assignment2 > 8 &&
-          studentData.CAT1 > 15 &&
-          studentData.CAT2 > 15 &&
-          studentData.Exam > 25
+          parseInt(studentData.assignment1) > 8 &&
+          parseInt(studentData.assignment2) > 8 &&
+          parseInt(studentData.CAT1) > 15 &&
+          parseInt(studentData.CAT2) > 15 &&
+          parseInt(studentData.Exam) > 25
         ) {
           studentsList.push({ id: studentDoc.id, ...studentData });
         }
